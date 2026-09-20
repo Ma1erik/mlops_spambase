@@ -1,0 +1,52 @@
+﻿git : check for added large files..............................................Passed
+строка:4 знак:1
++ git commit -m "test: trigger style failure" 2>&1 | Out-File -FilePath ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (check for added............Passed:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+fix end of files.........................................................Passed
+trim trailing whitespace.................................................Passed
+detect private key.......................................................Passed
+black....................................................................Passed
+flake8...................................................................Failed
+- hook id: flake8
+- exit code: 1
+
+src/bad_style.py:1:1: F401 'sys' imported but unused
+src/bad_style.py:2:1: F401 'os' imported but unused
+
+git : check for added large files..............................................Passed
+строка:15 знак:1
++ git commit -m "test: trigger secret leak" 2>&1 | Out-File -FilePath r ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (check for added............Passed:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+fix end of files.........................................................Passed
+trim trailing whitespace.................................................Passed
+detect private key.......................................................Failed
+- hook id: detect-private-key
+- exit code: 1
+
+Private key found: secret.key
+
+black................................................(no files to check)Skipped
+flake8...............................................(no files to check)Skipped
+git : check for added large files..............................................Failed
+строка:23 знак:1
++ git commit -m "test: trigger large file" 2>&1 | Out-File -FilePath re ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (check for added............Failed:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+- hook id: check-added-large-files
+- exit code: 1
+
+large_test.bin (1024 KB) exceeds 500 KB.
+
+fix end of files.....................................(no files to check)Skipped
+trim trailing whitespace.............................(no files to check)Skipped
+detect private key...................................(no files to check)Skipped
+black................................................(no files to check)Skipped
+flake8...............................................(no files to check)Skipped
