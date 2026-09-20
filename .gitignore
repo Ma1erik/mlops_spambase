@@ -1,0 +1,24 @@
+﻿# Виртуальное окружение
+.venv/
+venv/
+env/
+
+# Кэш Python
+__pycache__/
+*.py[cod]
+*.class
+.pytest_cache/
+.mypy_cache/
+
+# Данные и модели
+data/
+*.joblib
+*.pt
+*.npz
+
+# MLflow
+mlruns/
+
+# IDE
+.vscode/
+.idea/
