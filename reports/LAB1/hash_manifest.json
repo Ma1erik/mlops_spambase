@@ -1,0 +1,11 @@
+{
+  "dataset_name": "UCI Spambase",
+  "source_url": "https://archive.ics.uci.edu/static/public/94/spambase.zip",
+  "files": [
+    {
+      "path": "data/raw/spambase.csv",
+      "sha256": "b1ef93de71f97714d3d7d4f58fc9f718da7bbc8ac8a150eff2778616a8097b12",
+      "size_bytes": 702942
+    }
+  ]
+}
