@@ -22,3 +22,4 @@ mlruns/
 # IDE
 .vscode/
 .idea/
+*.zip
