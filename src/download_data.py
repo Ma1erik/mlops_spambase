@@ -1,65 +1,87 @@
-﻿import hashlib
-import io
-import json
-from pathlib import Path
+﻿import argparse
+import hashlib
+import sys
+import urllib.error
 import urllib.request
-import zipfile
+from pathlib import Path
 
-# Официальный архив датасета из репозитория UCI
-UCI_ZIP_URL = "https://archive.ics.uci.edu/static/public/94/spambase.zip"
-RAW_DIR = Path("data/raw")
-DATA_FILE = RAW_DIR / "spambase.csv"
-MANIFEST_PATH = Path("reports/LAB1/hash_manifest.json")
-
-
-def compute_sha256(filepath: Path) -> str:
-    hasher = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        while chunk := f.read(65536):
-            hasher.update(chunk)
-    return hasher.hexdigest()
+DEFAULT_URL = (
+    "https://archive.ics.uci.edu/ml/machine-learning-databases/"
+    "spambase/spambase.data"
+)
+OUTPUT_DIR = Path("data/raw")
+OUTPUT_FILE = OUTPUT_DIR / "spambase.csv"
+EXPECTED_SHA256 = "b1ef93de71f97714d3d7d4f58fc9f718da7bbc8ac8a150eff2778616a8097b12"
 
 
-def main() -> None:
-    RAW_DIR.mkdir(parents=True, exist_ok=True)
-    MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
+def compute_sha256(file_path: Path) -> str:
+    """Вычисление хеша SHA-256 файла."""
+    sha256 = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
-    print("Загрузка архива с UCI...")
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
-    request = urllib.request.Request(UCI_ZIP_URL, headers=headers)
 
-    with urllib.request.urlopen(request, timeout=30) as response:
-        zip_bytes = response.read()
+def download_dataset(
+    url: str = DEFAULT_URL,
+    target_path: Path = OUTPUT_FILE,
+) -> int:
+    """Загрузка данных, валидация хеша и программный возврат кода (0 или 1)."""
+    try:
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        print(f"[INFO] Загрузка сырых данных: {url}")
 
-    print("Извлечение spambase.data из архива...")
-    with zipfile.ZipFile(io.BytesIO(zip_bytes)) as z:
-        # Внутри архива UCI лежит сырой файл spambase.data без заголовков
-        data_bytes = z.read("spambase.data")
-        DATA_FILE.write_bytes(data_bytes)
+        req = urllib.request.Request(
+            url,
+            headers={"User-Agent": "Mozilla/5.0"},
+        )
 
-    sha256_hash = compute_sha256(DATA_FILE)
-    size_bytes = DATA_FILE.stat().st_size
+        with urllib.request.urlopen(req, timeout=20) as response:
+            data = response.read()
 
-    manifest = {
-        "dataset_name": "UCI Spambase",
-        "source_url": UCI_ZIP_URL,
-        "files": [
-            {
-                "path": str(DATA_FILE).replace("\\", "/"),
-                "sha256": sha256_hash,
-                "size_bytes": size_bytes,
-            }
-        ],
-    }
+        with open(target_path, "wb") as out_f:
+            out_f.write(data)
 
-    with open(MANIFEST_PATH, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2, ensure_ascii=False)
+        # Валидация контрольной суммы
+        actual_hash = compute_sha256(target_path)
+        if actual_hash.lower() != EXPECTED_SHA256.lower():
+            sys.stderr.write(
+                f"[ERROR] Нарушение целостности скачанного файла!\n"
+                f"Ожидался SHA-256: {EXPECTED_SHA256}\n"
+                f"Получен SHA-256:  {actual_hash}\n"
+            )
+            return 1
 
-    print(f"Готово! Данные сохранены в: {DATA_FILE}")
-    print(f"Размер: {size_bytes} байт")
-    print(f"SHA-256: {sha256_hash}")
-    print(f"Манифест записан в: {MANIFEST_PATH}")
+        print(f"[INFO] Данные успешно сохранены в: {target_path}")
+        print(f"[INFO] Хеш SHA-256 совпадает: {actual_hash}")
+        return 0
+
+    except urllib.error.HTTPError as exc:
+        sys.stderr.write(
+            f"[ERROR] HTTP ошибка при скачивании: {exc.code} {exc.reason}\n"
+        )
+        return 1
+    except urllib.error.URLError as exc:
+        sys.stderr.write(f"[ERROR] Сетевая ошибка подключения: {exc.reason}\n")
+        return 1
+    except Exception as exc:
+        sys.stderr.write(f"[ERROR] Непредвиденный сбой загрузки: {exc}\n")
+        return 1
+
+
+def main() -> int:
+    """Точка входа CLI."""
+    parser = argparse.ArgumentParser(description="Загрузка данных Spambase.")
+    parser.add_argument(
+        "--url",
+        type=str,
+        default=DEFAULT_URL,
+        help="URL источника датасета",
+    )
+    args = parser.parse_args()
+    return download_dataset(url=args.url)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
