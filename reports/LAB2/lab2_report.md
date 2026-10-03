@@ -21,7 +21,7 @@ andom_seed: 42 (фиксация псевдослучайных чисел дл�
 - max_iter_full: 1000 итераций для режима полного датасета
 
 Отказы на невалидных настройках подтверждены логом
-eports/LAB2/config_negative_test.log.
+reports/LAB2/config_negative_test.log.
 
 ---
 
