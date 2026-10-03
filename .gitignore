@@ -26,3 +26,5 @@ mlruns/
 
 # MLflow runs
 mlruns/
+
+mlflow.db
