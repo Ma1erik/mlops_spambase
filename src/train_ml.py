@@ -1,9 +1,9 @@
 ﻿import hashlib
 import json
+from pathlib import Path
 import sys
 import time
 import tracemalloc
-from pathlib import Path
 
 import joblib
 import mlflow
@@ -19,6 +19,7 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 try:
@@ -93,44 +94,48 @@ def train_full_dataset(
     config: PipelineConfig,
     x_train: np.ndarray,
     y_train: np.ndarray,
-    x_test: np.ndarray,
-    y_test: np.ndarray,
-) -> tuple[dict, SGDClassifier, float, float]:
-    """Обучение в режиме полного датасета в памяти."""
+) -> tuple[Pipeline, float, float]:
+    """Обучение в режиме полного датасета в памяти.
+
+    Принимает ТОЛЬКО обучающую выборку. Никакого x_test!
+    Возвращает единый обученный объект Pipeline.
+    """
     tracemalloc.start()
     t0 = time.perf_counter()
 
-    scaler = StandardScaler()
-    x_train_scaled = scaler.fit_transform(x_train)
-    x_test_scaled = scaler.transform(x_test)
-
-    model = SGDClassifier(
-        loss=config.loss_function,
-        alpha=config.alpha,
-        max_iter=config.max_iter_full,
-        random_state=config.random_seed,
+    pipeline = Pipeline(
+        [
+            ("scaler", StandardScaler()),
+            (
+                "model",
+                SGDClassifier(
+                    loss=config.loss_function,
+                    alpha=config.alpha,
+                    max_iter=config.max_iter_full,
+                    random_state=config.random_seed,
+                ),
+            ),
+        ]
     )
-    model.fit(x_train_scaled, y_train)
+    pipeline.fit(x_train, y_train)
 
     train_time = time.perf_counter() - t0
     _, peak_bytes = tracemalloc.get_traced_memory()
     tracemalloc.stop()
     peak_mem_mb = peak_bytes / (1024 * 1024)
 
-    y_pred = model.predict(x_test_scaled)
-    y_prob = model.predict_proba(x_test_scaled)[:, 1]
-
-    metrics = compute_bootstrap_ci(y_test, y_pred, y_prob, seed=config.random_seed)
-    return metrics, model, train_time, peak_mem_mb
+    return pipeline, train_time, peak_mem_mb
 
 
 def train_chunked(
     config: PipelineConfig,
     train_csv_path: Path,
-    x_test: np.ndarray,
-    y_test: np.ndarray,
-) -> tuple[dict, SGDClassifier, float, float]:
-    """Инкрементальное обучение чанками по потоку данных."""
+) -> tuple[Pipeline, float, float]:
+    """Инкрементальное обучение чанками по потоку данных.
+
+    Принимает ТОЛЬКО путь к обучающему потоку данных. Никакого x_test!
+    Возвращает собранный обученный объект Pipeline.
+    """
     tracemalloc.start()
     t0 = time.perf_counter()
 
@@ -138,8 +143,6 @@ def train_chunked(
     for chunk in pd.read_csv(train_csv_path, chunksize=config.chunk_size):
         x_chunk = chunk.iloc[:, :-1].values
         scaler.partial_fit(x_chunk)
-
-    x_test_scaled = scaler.transform(x_test)
 
     model = SGDClassifier(
         loss=config.loss_function,
@@ -159,11 +162,24 @@ def train_chunked(
     tracemalloc.stop()
     peak_mem_mb = peak_bytes / (1024 * 1024)
 
-    y_pred = model.predict(x_test_scaled)
-    y_prob = model.predict_proba(x_test_scaled)[:, 1]
+    # Собираем обученные скейлер и классификатор в единый Pipeline
+    pipeline = Pipeline([("scaler", scaler), ("model", model)])
+    return pipeline, train_time, peak_mem_mb
 
-    metrics = compute_bootstrap_ci(y_test, y_pred, y_prob, seed=config.random_seed)
-    return metrics, model, train_time, peak_mem_mb
+
+def evaluate_pipeline(
+    pipeline: Pipeline,
+    x_test: np.ndarray,
+    y_test: np.ndarray,
+    seed: int = 42,
+) -> dict:
+    """Оценка качества обученного пайплайна на тестовой выборке.
+
+    Пайплайн сам применяет сохраненный scaler к x_test без утечек данных.
+    """
+    y_pred = pipeline.predict(x_test)
+    y_prob = pipeline.predict_proba(x_test)[:, 1]
+    return compute_bootstrap_ci(y_test, y_pred, y_prob, seed=seed)
 
 
 def run_pipeline() -> int:
@@ -196,10 +212,12 @@ def run_pipeline() -> int:
         stratify=y_all,
     )
 
+    # Временный поток данных содержит строго обучающую выборку
     temp_train_path = REPORT_DIR / "temp_train_stream.csv"
     train_df = pd.DataFrame(np.column_stack([x_train, y_train]), columns=col_names)
     train_df.to_csv(temp_train_path, index=False)
 
+    # Наивный бейзлайн
     dummy = DummyClassifier(strategy="most_frequent")
     dummy.fit(x_train, y_train)
     dummy_pred = dummy.predict(x_test)
@@ -207,16 +225,20 @@ def run_pipeline() -> int:
     dummy_f1 = f1_score(y_test, dummy_pred, zero_division=0)
 
     mlflow.set_experiment("Lab2_ML_Spambase")
-
     rows_metrics = []
 
+    # 1. Полноразмерный режим
     with mlflow.start_run(run_name="full_dataset_mode") as run_full:
         full_id = run_full.info.run_id
         mlflow.log_params(config.model_dump())
         mlflow.log_param("mode", "full_dataset")
 
-        f_metrics, full_model, f_time, f_mem = train_full_dataset(
-            config, x_train, y_train, x_test, y_test
+        # Чистое обучение (без x_test) -> возвращает Pipeline
+        full_pipeline, f_time, f_mem = train_full_dataset(config, x_train, y_train)
+
+        # Оценка вынесена отдельно
+        f_metrics = evaluate_pipeline(
+            full_pipeline, x_test, y_test, seed=config.random_seed
         )
 
         for m_name, (val, ci_low, ci_high) in f_metrics.items():
@@ -239,13 +261,18 @@ def run_pipeline() -> int:
         mlflow.log_metric("time_seconds", f_time)
         mlflow.log_metric("peak_ram_mb", f_mem)
 
+    # 2. Инкрементальный чанковый режим
     with mlflow.start_run(run_name="chunked_mode") as run_chunk:
         chunk_id = run_chunk.info.run_id
         mlflow.log_params(config.model_dump())
         mlflow.log_param("mode", "chunked")
 
-        c_metrics, chunk_model, c_time, c_mem = train_chunked(
-            config, temp_train_path, x_test, y_test
+        # Чистое обучение чанками (без x_test) -> возвращает Pipeline
+        chunk_pipeline, c_time, c_mem = train_chunked(config, temp_train_path)
+
+        # Оценка пайплайна
+        c_metrics = evaluate_pipeline(
+            chunk_pipeline, x_test, y_test, seed=config.random_seed
         )
 
         for m_name, (val, ci_low, ci_high) in c_metrics.items():
@@ -268,7 +295,8 @@ def run_pipeline() -> int:
         mlflow.log_metric("time_seconds", c_time)
         mlflow.log_metric("peak_ram_mb", c_mem)
 
-    joblib.dump(full_model, MODEL_PATH)
+    # Сохранение полного пайплайна (со скейлером внутри!)
+    joblib.dump(full_pipeline, MODEL_PATH)
     model_sha256 = compute_sha256(MODEL_PATH)
 
     metrics_df = pd.DataFrame(rows_metrics)
@@ -280,7 +308,7 @@ def run_pipeline() -> int:
     print("Результаты ЛР2")
     print(f"MLflow Run ID (Full):    {full_id}")
     print(f"MLflow Run ID (Chunked): {chunk_id}")
-    print(f"Наивный бейзлайн (Dummy): " f"Accuracy={dummy_acc:.4f}, F1={dummy_f1:.4f}")
+    print(f"Наивный бейзлайн (Dummy): Accuracy={dummy_acc:.4f}, F1={dummy_f1:.4f}")
     print(
         f"Full Mode:    ROC-AUC={f_metrics['roc_auc'][0]:.4f}, "
         f"Time={f_time:.3f}s, RAM={f_mem:.2f}MB"
