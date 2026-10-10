@@ -1,0 +1,13 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.14.2, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\MustangPC\mlops_spambase\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\MustangPC\mlops_spambase
+plugins: anyio-4.15.1
+collecting ... collected 4 items
+
+tests/test_lab3_controls.py::test_pydantic_rejects_nonexistent_data PASSED [ 25%]
+tests/test_lab3_controls.py::test_pydantic_rejects_invalid_params PASSED [ 50%]
+tests/test_lab3_controls.py::test_seed_divergence_negative_control PASSED [ 75%]
+tests/test_lab3_controls.py::test_streaming_memory_bounded PASSED        [100%]
+
+============================== 4 passed in 2.87s ==============================
