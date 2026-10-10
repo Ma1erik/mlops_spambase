@@ -1,3 +1,3 @@
 mode,run_id,time_sec,ram_mb
-full_dataset_mode,ce15ca190b93403e878035b79913d607,6.884,80.83
-chunked_mode,a824a35338284165a92fe80c855e4620,6.887,2.22
+full_dataset_mode,65bb6f93936a4ccb8af83e78ed305b6e,6.759,80.95
+chunked_mode,c0eefadd50f248a6a2f660acd7e90c58,6.62,2.18
