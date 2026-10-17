@@ -1,0 +1,9 @@
+{
+  "data_path": "data/raw/spambase.csv",
+  "chunk_size": 500,
+  "test_size": 0.2,
+  "random_seed": 42,
+  "loss_function": "log_loss",
+  "alpha": 0.0001,
+  "max_iter_full": 1000
+}

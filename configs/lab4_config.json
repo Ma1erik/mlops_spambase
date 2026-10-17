@@ -1,0 +1,14 @@
+{
+  "data_path": "data/raw/spambase.csv",
+  "test_size": 0.2,
+  "random_seed": 42,
+  "chunk_size": 500,
+  "distance_quantile": 0.96,
+  "iqr_multiplier": 3.0,
+  "confidence_margin": 0.05,
+  "max_false_alarm_rate": 0.05,
+  "min_rejection_recall": 0.95,
+  "tolerance_stats": 1e-05,
+  "output_dir": "reports/LAB4",
+  "experiment_name": "lab4_validator_spambase"
+}
