@@ -125,3 +125,77 @@ class DLConfig(BaseModel):
         if not v.exists():
             raise ValueError(f"Файл по указанному пути не обнаружен: {v}")
         return v
+
+
+class ValidatorConfig(BaseModel):
+    """Схема параметров пайплайна модели-валидатора NumPy (ЛР 4)."""
+
+    data_path: Path = Field(
+        default=Path("data/raw/spambase.csv"),
+        description="Путь к исходному набору данных в формате CSV",
+    )
+    test_size: float = Field(
+        default=0.2,
+        gt=0.0,
+        lt=1.0,
+        description="Доля выборки для валидации",
+    )
+    random_seed: int = Field(
+        default=42,
+        ge=0,
+        description="Зерно генератора случайных чисел",
+    )
+    chunk_size: int = Field(
+        default=500,
+        gt=0,
+        description="Размер чанка для потокового расчёта статистик",
+    )
+    distance_quantile: float = Field(
+        default=0.95,
+        gt=0.5,
+        lt=1.0,
+        description="Квантиль расстояния в пространстве признаков для порога отсева",
+    )
+    iqr_multiplier: float = Field(
+        default=3.0,
+        gt=0.0,
+        description="Множитель IQR для диапазонного правила отказа",
+    )
+    confidence_margin: float = Field(
+        default=0.05,
+        ge=0.0,
+        lt=0.5,
+        description="Зона неопределённости рабочей модели (|prob - 0.5| < margin)",
+    )
+    max_false_alarm_rate: float = Field(
+        default=0.05,
+        gt=0.0,
+        lt=1.0,
+        description="Максимальная допустимая доля ложных отказов на своих данных",
+    )
+    min_rejection_recall: float = Field(
+        default=0.95,
+        gt=0.0,
+        lt=1.0,
+        description="Минимальная полнота отсева чужеродных примеров",
+    )
+    tolerance_stats: float = Field(
+        default=0.00001,
+        gt=0.0,
+        description="Допуск расхождения статистик между Full и Chunked режимами",
+    )
+    output_dir: Path = Field(
+        default=Path("reports/LAB4"),
+        description="Каталог сохранения артефактов ЛР 4",
+    )
+    experiment_name: str = Field(
+        default="lab4_validator_spambase",
+        description="Имя эксперимента в MLflow",
+    )
+
+    @field_validator("data_path")
+    @classmethod
+    def check_file_exists(cls, v: Path) -> Path:
+        if not v.exists():
+            raise ValueError(f"Файл по указанному пути не обнаружен: {v}")
+        return v
