@@ -23,3 +23,8 @@ mlruns/
 .vscode/
 .idea/
 *.zip
+
+# MLflow runs
+mlruns/
+
+mlflow.db
