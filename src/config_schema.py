@@ -1,5 +1,5 @@
 ﻿from pathlib import Path
-from typing import Literal
+from typing import Literal, Optional
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -191,6 +191,56 @@ class ValidatorConfig(BaseModel):
     experiment_name: str = Field(
         default="lab4_validator_spambase",
         description="Имя эксперимента в MLflow",
+    )
+
+    @field_validator("data_path")
+    @classmethod
+    def check_file_exists(cls, v: Path) -> Path:
+        if not v.exists():
+            raise ValueError(f"Файл по указанному пути не обнаружен: {v}")
+        return v
+
+
+class GeneratorConfig(BaseModel):
+    """Схема параметров генератора синтетических данных (ЛР 5)."""
+
+    data_path: Path = Field(
+        default=Path("data/raw/spambase.csv"),
+        description="Путь к эталонному датасету",
+    )
+    mode: Literal["similar", "random"] = Field(
+        default="similar",
+        description="Режим генерации",
+    )
+    n_samples: int = Field(
+        default=1000,
+        gt=0,
+        description="Количество генерируемых строк",
+    )
+    random_seed: int = Field(
+        default=42,
+        ge=0,
+        description="Зерно генератора случайных чисел",
+    )
+    mean_shift: float = Field(
+        default=0.0,
+        description="Величина сдвига средних признаков в единицах std",
+    )
+    class_ratio: Optional[float] = Field(
+        default=None,
+        gt=0.0,
+        lt=1.0,
+        description="Целевая доля класса спама (1)",
+    )
+    label_noise_rate: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Доля инвертируемых меток целевого класса",
+    )
+    output_dir: Path = Field(
+        default=Path("reports/LAB5"),
+        description="Каталог артефактов ЛР 5",
     )
 
     @field_validator("data_path")
