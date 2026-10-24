@@ -1,0 +1,20 @@
+--- Тест 1: Невалидный chunk_size (<= 0) ---
+[ОТКАЗ СХЕМЫ PYDANTIC]
+1 validation error for PipelineConfig
+chunk_size
+  Input should be greater than 0 [type=greater_than, input_value=-100, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.13/v/greater_than
+
+--- Тест 2: Невалидный test_size (>= 1.0) ---
+[ОТКАЗ СХЕМЫ PYDANTIC]
+1 validation error for PipelineConfig
+test_size
+  Input should be less than 1 [type=less_than, input_value=1.5, input_type=float]
+    For further information visit https://errors.pydantic.dev/2.13/v/less_than
+
+--- Тест 3: Несуществующий путь к данным data_path ---
+[ОТКАЗ СХЕМЫ PYDANTIC]
+1 validation error for PipelineConfig
+data_path
+  Value error, Файл по указанному пути не обнаружен: data\raw\non_existent_file.csv [type=value_error, input_value='data/raw/non_existent_file.csv', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/value_error
