@@ -1,5 +1,8 @@
-﻿import time
+﻿import os
+import time
 from collections import deque
+from typing import List, Tuple
+import joblib
 import numpy as np
 import psutil
 from fastapi import FastAPI, HTTPException, Request
@@ -9,6 +12,8 @@ from fastapi.responses import JSONResponse
 from src.service.schemas import (
     SpambaseItem,
     PredictionResponse,
+    BatchSpambaseRequest,
+    BatchPredictionResponse,
     HealthResponse,
     MetricsResponse,
     SwitchVersionRequest,
@@ -17,7 +22,7 @@ from src.service.registry import ModelRegistry
 
 REGISTRY_PATH = "reports/LAB6/registry.json"
 
-app = FastAPI(title="Spambase Model Inference Service", version="1.0.0")
+app = FastAPI(title="Spambase Model Inference Service", version="2.0.0")
 
 registry = ModelRegistry(registry_file=REGISTRY_PATH)
 
@@ -66,6 +71,77 @@ async def predict(item: SpambaseItem):
         prediction_counter += 1
         return PredictionResponse(
             prediction=pred, probability=round(prob, 4), model_version=ver, status="ok"
+        )
+    except Exception as e:
+        error_counter += 1
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        dt_ms = (time.perf_counter() - t0) * 1000.0
+        latencies.append(dt_ms)
+
+
+def _predict_chunk_records(
+    model, chunk_features: List[List[float]]
+) -> Tuple[List[int], List[float]]:
+    c_preds = []
+    c_probs = []
+    for feats in chunk_features:
+        p, pr = model.predict(feats)
+        c_preds.append(int(p))
+        c_probs.append(round(float(pr), 4))
+    return c_preds, c_probs
+
+
+@app.post("/predict/batch", response_model=BatchPredictionResponse)
+async def predict_batch(payload: BatchSpambaseRequest):
+    global request_counter, prediction_counter, error_counter
+    t0 = time.perf_counter()
+    request_counter += 1
+
+    try:
+        ver, model = registry.get_active_model()
+        features_list = [item.features for item in payload.items]
+        total_items = len(features_list)
+
+        max_cores = os.cpu_count() or 1
+        if payload.n_jobs is None or payload.n_jobs == -1 or payload.n_jobs > max_cores:
+            effective_workers = max_cores
+        elif payload.n_jobs <= 0:
+            effective_workers = 1
+        else:
+            effective_workers = min(payload.n_jobs, max_cores)
+
+        if total_items <= 1 or effective_workers == 1:
+            preds, probs = _predict_chunk_records(model, features_list)
+            actual_workers = 1
+        else:
+            chunk_size = max(
+                1, (total_items + effective_workers - 1) // effective_workers
+            )
+            chunks = [
+                features_list[i : i + chunk_size]
+                for i in range(0, total_items, chunk_size)
+            ]
+            actual_workers = min(len(chunks), effective_workers)
+
+            results = joblib.Parallel(n_jobs=actual_workers, prefer="threads")(
+                joblib.delayed(_predict_chunk_records)(model, chk) for chk in chunks
+            )
+
+            preds = []
+            probs = []
+            for cp, cpr in results:
+                preds.extend(cp)
+                probs.extend(cpr)
+
+        prediction_counter += total_items
+        return BatchPredictionResponse(
+            predictions=preds,
+            probabilities=probs,
+            model_version=ver,
+            processed_items=total_items,
+            workers_used=actual_workers,
+            status="ok",
         )
     except Exception as e:
         error_counter += 1

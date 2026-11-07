@@ -27,6 +27,24 @@ class PredictionResponse(BaseModel):
     status: str = "ok"
 
 
+class BatchSpambaseRequest(BaseModel):
+    items: List[SpambaseItem] = Field(..., min_length=1)
+    n_jobs: Optional[int] = Field(default=-1)
+
+
+# Синоним для совместимости
+BatchPredictRequest = BatchSpambaseRequest
+
+
+class BatchPredictionResponse(BaseModel):
+    predictions: List[int]
+    probabilities: List[float]
+    model_version: str
+    processed_items: int
+    workers_used: int
+    status: str = "ok"
+
+
 class ModelVersionInfo(BaseModel):
     version: str
     model_type: str
