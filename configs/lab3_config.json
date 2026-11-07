@@ -1,0 +1,15 @@
+﻿{
+  "data_path": "data/raw/spambase.csv",
+  "test_size": 0.2,
+  "random_seed": 42,
+  "batch_size": 64,
+  "chunk_size": 500,
+  "epochs": 30,
+  "learning_rate": 0.001,
+  "early_stopping_patience": 5,
+  "hidden_dim_1": 64,
+  "hidden_dim_2": 32,
+  "dropout_rate": 0.2,
+  "tolerance_metric": 0.005,
+  "device_parity_tolerance": 0.00001
+}

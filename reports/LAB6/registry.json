@@ -1,0 +1,26 @@
+{
+  "active_version": "v1.0.0-ml",
+  "previous_version": "v2.0.0-dl",
+  "models": {
+    "v1.0.0-ml": {
+      "version": "v1.0.0-ml",
+      "model_type": "ml_joblib",
+      "path": "reports/LAB2/ml_model.joblib",
+      "sha256": "ffa1a160a09975bc5776b56e8a4c623d1518f64a5716ab7fea63f393cc9f2c29",
+      "accuracy": 0.9326,
+      "f1_score": 0.915,
+      "status": "рабочая",
+      "last_transition_reason": "Rollback: Rollback to ML"
+    },
+    "v2.0.0-dl": {
+      "version": "v2.0.0-dl",
+      "model_type": "dl_pt",
+      "path": "reports/LAB3/dl_model.pt",
+      "sha256": "c2d5f427def66348dadf9d4777a58b05e9e4e7b7ac08312f02664f3ca6524186",
+      "accuracy": 0.9412,
+      "f1_score": 0.9238,
+      "status": "снята",
+      "last_transition_reason": "Promote DL"
+    }
+  }
+}
