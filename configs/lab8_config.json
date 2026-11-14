@@ -1,0 +1,19 @@
+{
+  "random_seed": 42,
+  "real_data_path": "data/raw/spambase.csv",
+  "synthetic_data_path": "data/synthetic/spambase_synthetic.csv",
+  "n_synthetic_samples": 4601,
+  "ml_config_path": "configs/lab2_config.json",
+  "dl_config_path": "configs/lab3_config.json",
+  "validator_config_path": "configs/lab4_config.json",
+  "generator_config_path": "configs/lab5_config.json",
+  "alerts": {
+    "drift_share_threshold": 0.25,
+    "csi_with_drift_threshold": 0.20,
+    "validator_reject_max_clean": 0.15,
+    "service_p95_max_ms": 0.93,
+    "min_success_rate": 0.999,
+    "suppression_window_sec": 300,
+    "alerts_log_path": "reports/LAB8/alerts_sample.jsonl"
+  }
+}

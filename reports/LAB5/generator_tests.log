@@ -1,0 +1,18 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.14.2, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\MustangPC\mlops_spambase
+configfile: pytest.ini
+plugins: anyio-4.15.1, cov-7.1.0
+collected 8 items
+
+tests\test_lab5_generator.py ........                                    [100%]
+
+=============================== tests coverage ================================
+_______________ coverage: platform win32, python 3.14.2-final-0 _______________
+
+Name               Stmts   Miss  Cover   Missing
+------------------------------------------------
+src\generator.py     152      1    99%   275
+------------------------------------------------
+TOTAL                152      1    99%
+============================== 8 passed in 5.51s ==============================

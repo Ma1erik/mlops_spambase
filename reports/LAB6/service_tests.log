@@ -1,0 +1,23 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.14.2, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\MustangPC\mlops_spambase\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\MustangPC\mlops_spambase
+configfile: pytest.ini
+plugins: anyio-4.15.1, cov-7.1.0
+collecting ... collected 7 items
+
+tests/test_service.py::test_health_endpoint PASSED                       [ 14%]
+tests/test_service.py::test_predict_valid_features PASSED                [ 28%]
+tests/test_service.py::test_contract_missing_field_422 PASSED            [ 42%]
+tests/test_service.py::test_contract_invalid_length_422 PASSED           [ 57%]
+tests/test_service.py::test_contract_negative_value_422 PASSED           [ 71%]
+tests/test_service.py::test_contract_wrong_data_type_422 PASSED          [ 85%]
+tests/test_service.py::test_negative_control_hash_mismatch PASSED        [100%]
+
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\MustangPC\mlops_spambase\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 7 passed, 1 warning in 2.78s =========================

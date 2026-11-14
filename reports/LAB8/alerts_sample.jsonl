@@ -1,0 +1,3 @@
+{"timestamp": "2026-11-14T12:14:09.448722+00:00", "metric": "feature_drift_share", "value": 0.2807, "threshold": 0.25, "level": "CRITICAL", "action": "switch_to_fallback_or_retrain"}
+{"timestamp": "2026-11-14T12:14:09.455470+00:00", "metric": "validator_reject_rate", "value": 1.0, "threshold": 0.15, "level": "CRITICAL", "action": "block_unreliable_predictions"}
+{"timestamp": "2026-11-14T12:14:09.475186+00:00", "metric": "service_latency_p95_ms", "value": 1.84, "threshold": 0.93, "level": "WARNING", "action": "scale_worker_pool"}

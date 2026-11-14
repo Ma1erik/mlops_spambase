@@ -1,0 +1,10 @@
+{
+  "data_path": "data/raw/spambase.csv",
+  "mode": "similar",
+  "n_samples": 1000,
+  "random_seed": 42,
+  "mean_shift": 0.0,
+  "class_ratio": null,
+  "label_noise_rate": 0.0,
+  "output_dir": "reports/LAB5"
+}

@@ -1,0 +1,5 @@
+{"timestamp": "2026-11-14T12:15:46.764578+00:00", "scenario": "C1_SERVICE_KILL", "alert_detection_sec": 1.066, "recovery_time_sec": 4.131, "lost_requests_window": 5, "smoke_200_all": true}
+{"timestamp": "2026-11-14T12:15:46.877531+00:00", "scenario": "C2_WORKER_FAULT", "health_status_during_fault": 200, "batch_status": 200, "batch_error_rate_pct": 0.0, "alert_emitted": true}
+{"timestamp": "2026-11-14T12:15:46.960178+00:00", "scenario": "C3_CORRUPTED_MODEL_HASH", "corrupted_file_rejected": true, "expected_sha256": "ffa1a160a09975bc...", "actual_sha256": "a67ffd227d9a759f...", "active_model_success_rate": 1.0, "alert_emitted": true}
+{"timestamp": "2026-11-14T12:15:46.960307+00:00", "scenario": "C4_STREAM_INTERRUPTION", "degraded_mode_logged": true, "gap_windows": 1, "checkpoint_offset": 600, "total_accounted_records": 1000, "counters_consistent": true, "recovery_windows": 1}
+{"timestamp": "2026-11-14T12:15:47.125421+00:00", "scenario": "C5_INVALID_PYDANTIC_CONFIG", "invalid_config_exit_code": 1, "stopped_with_pydantic_explanation": true, "valid_config_rerun_passed": true}
