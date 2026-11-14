@@ -1,7 +1,7 @@
 {
   "variant": 45,
   "dataset": "UCI Spambase",
-  "generated_at_utc": "2026-11-14T12:28:29.060432+00:00",
+  "generated_at_utc": "2026-11-14T12:33:55.838533+00:00",
   "total_files": 102,
   "files": [
     {
@@ -401,13 +401,13 @@
     },
     {
       "path": "reports/LAB8/critical_review_comment.md",
-      "size_bytes": 3167,
-      "sha256": "3636eea48f691b1b7071ec68b399c6456bcc4696e90932bcf78aa24e80397932"
+      "size_bytes": 2733,
+      "sha256": "303a5ad22ab6379f4f1ad6aee83a754dae84f70911d7508162c5860fd76703a5"
     },
     {
       "path": "reports/LAB8/defense_checklist.md",
-      "size_bytes": 6821,
-      "sha256": "842164abb3c19bf87835aeafeeb53cff05e19e9f094bcc8fbcecbf4adb42905d"
+      "size_bytes": 6924,
+      "sha256": "564fa6c4d4928bf8d4e468064197f934c27928b33c68f9b08724453dfbca39fb"
     },
     {
       "path": "reports/LAB8/eval_real.json",
@@ -441,8 +441,8 @@
     },
     {
       "path": "reports/LAB8/llm_review.md",
-      "size_bytes": 6183,
-      "sha256": "681f61b701b4e4b32a5ba5d35bc5d7fbcb05900e99074687fe07fcd9afc93d09"
+      "size_bytes": 5870,
+      "sha256": "dfbd41adb3bff0581840e4dc472d38867a01274d5acb026db9d693d03e57655f"
     },
     {
       "path": "reports/LAB8/load_cpu_ram.png",
