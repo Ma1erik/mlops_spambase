@@ -1,0 +1,121 @@
+{
+  "scale": 0.03,
+  "alert_drill": {
+    "clean_windows_alerts": 1,
+    "drift_alerts_recorded": 1,
+    "drift_alerts_suppressed": 7,
+    "alerts_file": "reports/LAB8/alerts_sample.jsonl"
+  },
+  "load_stages": {
+    "6.1_warmup": {
+      "requests_sent": 368,
+      "items_processed": 9200,
+      "duration_sec": 9.01,
+      "success_rate": 1.0,
+      "lost_requests": 0,
+      "p50_ms": 25.747,
+      "p95_ms": 27.231,
+      "p99_ms": 27.825,
+      "rps": 1020.74
+    },
+    "6.2_clean_ml_seq": {
+      "requests_sent": 14211,
+      "items_processed": 14211,
+      "duration_sec": 18.0,
+      "success_rate": 1.0,
+      "lost_requests": 0,
+      "p50_ms": 1.251,
+      "p95_ms": 1.414,
+      "p99_ms": 1.523,
+      "rps": 789.47,
+      "false_alerts": 0
+    },
+    "6.3_clean_dl_parallel": {
+      "requests_sent": 1106,
+      "items_processed": 55300,
+      "duration_sec": 18.0,
+      "success_rate": 1.0,
+      "lost_requests": 0,
+      "p50_ms": 15.708,
+      "p95_ms": 16.147,
+      "p99_ms": 16.824,
+      "rps": 3071.79,
+      "false_alerts": 0
+    },
+    "6.4_clean_dl_variable_rps": {
+      "requests_sent": 1041,
+      "items_processed": 20820,
+      "duration_sec": 18.01,
+      "success_rate": 1.0,
+      "lost_requests": 0,
+      "p50_ms": 14.823,
+      "p95_ms": 15.434,
+      "p99_ms": 16.251,
+      "rps": 1155.78
+    },
+    "6.5_drift_dl_seq": {
+      "requests_sent": 20352,
+      "items_processed": 20352,
+      "duration_sec": 18.0,
+      "success_rate": 1.0,
+      "lost_requests": 0,
+      "p50_ms": 0.863,
+      "p95_ms": 1.006,
+      "p99_ms": 1.095,
+      "rps": 1130.62,
+      "detection_window": 1,
+      "drift_share": 0.4912,
+      "validator_reject_rate_drifted": 1.0,
+      "silent_accepts": 0,
+      "active_alerts_during_drift": 1
+    },
+    "6.6_rollback_under_load": {
+      "requests_sent": 6980,
+      "items_processed": 6980,
+      "duration_sec": 9.0,
+      "success_rate": 1.0,
+      "lost_requests": 0,
+      "p50_ms": 1.268,
+      "p95_ms": 1.467,
+      "p99_ms": 1.751,
+      "rps": 775.47,
+      "rollback_status_code": 200,
+      "rollback_duration_ms": 27.27,
+      "windows_to_normalize": 1
+    }
+  },
+  "resilience_scenarios": {
+    "C1": {
+      "alert_detection_sec": 1.066,
+      "recovery_time_sec": 4.131,
+      "lost_requests_window": 5,
+      "smoke_200_all": true
+    },
+    "C2": {
+      "health_status_during_fault": 200,
+      "batch_status": 200,
+      "batch_error_rate_pct": 0.0,
+      "alert_emitted": true
+    },
+    "C3": {
+      "corrupted_file_rejected": true,
+      "expected_sha256": "ffa1a160a09975bc...",
+      "actual_sha256": "a67ffd227d9a759f...",
+      "active_model_success_rate": 1.0,
+      "alert_emitted": true
+    },
+    "C4": {
+      "degraded_mode_logged": true,
+      "gap_windows": 1,
+      "checkpoint_offset": 600,
+      "total_accounted_records": 1000,
+      "counters_consistent": true,
+      "recovery_windows": 1
+    },
+    "C5": {
+      "invalid_config_exit_code": 1,
+      "stopped_with_pydantic_explanation": true,
+      "valid_config_rerun_passed": true
+    }
+  }
+}

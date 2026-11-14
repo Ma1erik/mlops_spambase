@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mlops-spambase"
+version = "0.8.0"
+description = "End-to-end MLOps pipeline for UCI Spambase (Variant 45)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "evidently==0.7.23",
+    "fastapi==0.142.2",
+    "httpx==0.28.1",
+    "joblib==1.6.0",
+    "matplotlib>=3.8.0",
+    "mlflow==3.16.1",
+    "numpy==2.5.3",
+    "pandas==3.0.6",
+    "psutil==7.2.2",
+    "pydantic==2.13.5",
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "requests==2.34.2",
+    "scikit-learn==1.9.1",
+    "torch==2.14.1",
+    "uvicorn==0.54.0",
+]
+
+[project.scripts]
+train_ml = "src.cli:cmd_train_ml"
+train_dl = "src.cli:cmd_train_dl"
+train_validator = "src.cli:cmd_train_validator"
+generate = "src.cli:cmd_generate"
+serve = "src.cli:cmd_serve"
+evaluate = "src.cli:cmd_evaluate"
+monitor = "src.cli:cmd_monitor"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]

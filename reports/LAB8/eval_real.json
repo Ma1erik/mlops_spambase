@@ -1,0 +1,12 @@
+{
+  "source": "real",
+  "data_path": "data/raw/spambase.csv",
+  "n_test_samples": 921,
+  "ml_accuracy": 0.9055,
+  "ml_f1": 0.8813,
+  "ml_roc_auc": 0.9626,
+  "dl_accuracy": 0.9533,
+  "dl_f1": 0.9415,
+  "dl_roc_auc": 0.9895,
+  "validator_reject_rate": 0.0499
+}
